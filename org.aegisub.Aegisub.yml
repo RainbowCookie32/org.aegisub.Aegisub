@@ -82,8 +82,6 @@ modules:
         url: https://github.com/arch1t3cht/Aegisub
         branch: migration03
         commit: 8fea0f6ba2ccb9163a6d9075f700adea582496b0
-      - type: patch
-        path: fix-and-improve-appstream-file.patch
     modules:
       - name: wxwidgets
         buildsystem: cmake-ninja
