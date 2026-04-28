@@ -71,7 +71,7 @@ modules:
       # Other
       - -Dfftw3=enabled
       - -Dsystem_luajit=true
-      - -Dwx_version=3.2.6
+      - -Dwx_version=3.2.10
       - -Denable_update_checker=false
       - --buildtype=release
     post-install:
@@ -105,14 +105,14 @@ modules:
         sources:
           - type: git
             url: https://github.com/wxWidgets/wxWidgets.git
-            tag: v3.2.8
-            commit: 8aef5f40b93958719771331ca03866b7b6fff6bf
+            tag: v3.2.10
+            commit: aa1a25e7b511c0a4e341a3c722e6eac2aa159ab6
             x-checker-data:
               type: git
               tag-pattern: ^v(\d*\.\d*\.\d*)$
               version-scheme: semantic
               versions:
-                <=: 3.2.8
+                <=: 3.2.10
       - name: ffms2
         buildsystem: autotools
         cleanup:
