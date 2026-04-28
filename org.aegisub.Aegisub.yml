@@ -58,7 +58,6 @@ modules:
   - name: aegisub
     buildsystem: meson
     config-opts:
-      - -Db_lto=true
       # Audio output
       - -Dalsa=enabled
       - -Dlibpulse=enabled
@@ -73,7 +72,6 @@ modules:
       - -Dfftw3=enabled
       - -Dsystem_luajit=true
       - -Dwx_version=3.2.6
-      - -Dcredit="zefr0x"
       - -Denable_update_checker=false
       - --buildtype=release
     post-install:
@@ -81,13 +79,9 @@ modules:
       - mv ${FLATPAK_DEST}/share/aegisub/automation ${FLATPAK_DEST}/automations/default/share/aegisub/automation
     sources:
       - type: git
-        url: https://github.com/TypesettingTools/Aegisub
-        tag: v3.4.2
-        commit: f437ba4f547fdb0e02432f1c45a4da25e51035f8
-        x-checker-data:
-          type: git
-          tag-pattern: ^v(\d*\.\d*\.\d*)$
-          version-scheme: semantic
+        url: https://github.com/arch1t3cht/Aegisub
+        branch: migration03
+        commit: 8fea0f6ba2ccb9163a6d9075f700adea582496b0
       - type: patch
         path: fix-and-improve-appstream-file.patch
     modules:
