@@ -1,29 +1,26 @@
-# Thanks To:
-#   https://gitlab.archlinux.org/archlinux/packaging/packages/aegisub/-/blob/main/PKGBUILD
-#   https://gitlab.archlinux.org/archlinux/packaging/packages/wxwidgets/-/blob/main/PKGBUILD
-#   https://github.com/flathub/io.mpv.Mpv/blob/master/io.mpv.Mpv.yml
-#   https://github.com/flathub/org.audacityteam.Audacity/blob/master/org.audacityteam.Audacity.yaml
-#   https://github.com/flathub/org.blender.Blender/blob/master/org.blender.Blender.json
-#   https://github.com/scx/aegisub-flatpak
-
 id: org.aegisub.Aegisub
-runtime: org.gnome.Platform
-runtime-version: '50'
-sdk: org.gnome.Sdk
+runtime: org.kde.Platform
+runtime-version: 5.15-25.08
+sdk: org.kde.Sdk
 command: aegisub
 finish-args:
-  - --share=ipc
-  - --socket=fallback-x11
-  - --socket=wayland
-  - --device=dri
-  - --socket=pulseaudio
-  - --filesystem=home
+  - '--share=ipc'
+  - '--socket=fallback-x11'
+  - '--socket=wayland'
+  - '--device=dri'
+  - '--socket=pulseaudio'
+  - '--filesystem=home'
 add-extensions:
+  org.freedesktop.Platform.ffmpeg-full:
+    version: '24.08'
+    directory: lib/ffmpeg
+    add-ld-path: .
   org.aegisub.Aegisub.Automations:
     directory: automations
     subdirectories: true
     add-ld-path: lib
-    merge-dirs: share/aegisub/automation/autoload;share/aegisub/automation/include;share/aegisub/automation/demo
+    merge-dirs: >-
+      share/aegisub/automation/autoload;share/aegisub/automation/include;share/aegisub/automation/demo
     no-autodownload: true
     autodelete: true
   org.aegisub.Aegisub.Automations.default:
@@ -31,18 +28,18 @@ add-extensions:
     bundle: true
     no-autodownload: false
     autodelete: true
-  # External Extentions
   org.aegisub.Aegisub.Automations.unanimated-scripts:
     directory: automations/unanimated-scripts
     bundle: true
     no-autodownload: true
     autodelete: true
-
-# TODO: Consider separate locales
 separate-locales: false
 cleanup-commands:
-  - install -d ${FLATPAK_DEST}/automations
-  - ln -s ${FLATPAK_DEST}/automations/share/aegisub/automation ${FLATPAK_DEST}/share/aegisub/automation
+  - 'install -d ${FLATPAK_DEST}/automations'
+  - >-
+    ln -s ${FLATPAK_DEST}/automations/share/aegisub/automation
+    ${FLATPAK_DEST}/share/aegisub/automation
+  - 'mkdir -p ${FLATPAK_DEST}/lib/ffmpeg'
 cleanup:
   - /include
   - /lib/pkgconfig
@@ -58,68 +55,66 @@ modules:
   - name: aegisub
     buildsystem: meson
     config-opts:
-      # Audio output
-      - -Dalsa=enabled
-      - -Dlibpulse=enabled
-      # Video source
-      - -Dffms2=enabled
-      - -Davisynth=enabled
-      # Text
-      - -Dhunspell=enabled
-      - -Duchardet=enabled
-      - -Dcsri=enabled
-      # Other
-      - -Dfftw3=enabled
-      - -Dsystem_luajit=true
-      - -Dwx_version=3.2.10
-      - -Denable_update_checker=false
-      - --buildtype=release
+      - '-Dalsa=enabled'
+      - '-Dlibpulse=enabled'
+      - '-Dffms2=enabled'
+      - '-Davisynth=enabled'
+      - '-Dhunspell=enabled'
+      - '-Duchardet=enabled'
+      - '-Dcsri=enabled'
+      - '-Dfftw3=enabled'
+      - '-Dsystem_luajit=true'
+      - '-Dwx_version=3.3.2'
+      - '-Denable_update_checker=false'
+      - '-Dtests=false'
+      - '--buildtype=release'
     post-install:
-      - mkdir -p ${FLATPAK_DEST}/automations/default/share/aegisub
-      - mv ${FLATPAK_DEST}/share/aegisub/automation ${FLATPAK_DEST}/automations/default/share/aegisub/automation
+      - 'mkdir -p ${FLATPAK_DEST}/automations/default/share/aegisub'
+      - >-
+        mv ${FLATPAK_DEST}/share/aegisub/automation
+        ${FLATPAK_DEST}/automations/default/share/aegisub/automation
     sources:
       - type: git
-        url: https://github.com/arch1t3cht/Aegisub
+        url: 'https://github.com/arch1t3cht/Aegisub'
         branch: migration03
         commit: 8fea0f6ba2ccb9163a6d9075f700adea582496b0
     modules:
       - name: wxwidgets
         buildsystem: cmake-ninja
         config-opts:
-          # TODO: Disable more unused features to fast up compiling.
-          - -DCMAKE_BUILD_TYPE=Release
-          - -DwxBUILD_TOOLKIT=gtk3
-          - -DwxUSE_BASE64=OFF
-          - -DwxUSE_GIF=OFF
-          - -DwxUSE_LIBJPEG=OFF
-          - -DwxUSE_SVG=OFF
-          - -DwxUSE_TARSTREAM=OFF
-          - -DwxUSE_LIBTIFF=OFF
-          - -DwxUSE_WEBVIEW_WEBKIT=OFF
-          - -DwxUSE_WEBVIEW=OFF
-          - -DwxUSE_LIBPNG=sys
+          - '-DCMAKE_BUILD_TYPE=Release'
+          - '-DwxBUILD_TOOLKIT=qt'
+          - '-DwxUSE_BASE64=ON'
+          - '-DwxUSE_GIF=OFF'
+          - '-DwxUSE_LIBJPEG=OFF'
+          - '-DwxUSE_SVG=OFF'
+          - '-DwxUSE_TARSTREAM=OFF'
+          - '-DwxUSE_LIBTIFF=OFF'
+          - '-DwxUSE_WEBVIEW_WEBKIT=OFF'
+          - '-DwxUSE_WEBVIEW=OFF'
+          - '-DwxUSE_LIBPNG=sys'
         cleanup:
           - /bin
           - /share/bakefile
           - /lib/wx
         sources:
           - type: git
-            url: https://github.com/wxWidgets/wxWidgets.git
-            tag: v3.2.10
-            commit: aa1a25e7b511c0a4e341a3c722e6eac2aa159ab6
+            url: 'https://github.com/wxWidgets/wxWidgets.git'
+            tag: v3.3.2
+            commit: db1005db3dea2c37a46fb455a9a02e37aa360751
             x-checker-data:
               type: git
               tag-pattern: ^v(\d*\.\d*\.\d*)$
               version-scheme: semantic
               versions:
-                <=: 3.2.10
+                <=: 3.3.2
       - name: ffms2
         buildsystem: autotools
         cleanup:
           - /bin
         sources:
           - type: git
-            url: https://github.com/FFMS/ffms2.git
+            url: 'https://github.com/FFMS/ffms2.git'
             tag: '5.0'
             commit: 7ed5e4d039ca9a6236bd2ebdfdd656c4304fbe04
             x-checker-data:
@@ -128,43 +123,46 @@ modules:
       - name: boost
         buildsystem: simple
         build-commands:
-          - ./bootstrap.sh --prefix=${FLATPAK_DEST} --with-libraries=chrono,container,filesystem,system,locale,regex,thread
+          - >-
+            ./bootstrap.sh --prefix=${FLATPAK_DEST}
+            --with-libraries=chrono,container,filesystem,system,locale,regex,thread
             --with-icu
           - ./b2 install variant=release
         sources:
           - type: archive
-            url: https://archives.boost.io/release/1.88.0/source/boost_1_88_0.tar.gz
-            sha512: fa97666d3de550541b038b1a5b496284ab0785b9fff1c5da01e88605f04ce97541626cbd2f9b793bd5b87fccb2db10f5f7544f4d78c710f39f4b6455a910e654
+            url: >-
+              https://archives.boost.io/release/1.88.0/source/boost_1_88_0.tar.gz
+            sha512: >-
+              fa97666d3de550541b038b1a5b496284ab0785b9fff1c5da01e88605f04ce97541626cbd2f9b793bd5b87fccb2db10f5f7544f4d78c710f39f4b6455a910e654
             x-checker-data:
               type: anitya
               project-id: 6845
               stable-only: true
-              url-template: https://archives.boost.io/release/$version/source/boost_${major}_${minor}_${patch}.tar.gz
+              url-template: >-
+                https://archives.boost.io/release/$version/source/boost_${major}_${minor}_${patch}.tar.gz
               versions:
                 <=: 1.88.0
       - name: LuaJIT
         buildsystem: autotools
         no-autogen: true
         build-options:
-          cflags: -DLUAJIT_ENABLE_LUA52COMPAT
+          cflags: '-DLUAJIT_ENABLE_LUA52COMPAT'
         make-install-args:
-          - PREFIX=${FLATPAK_DEST}
+          - 'PREFIX=${FLATPAK_DEST}'
         cleanup:
           - /bin
         sources:
           - type: git
-            url: https://github.com/LuaJIT/LuaJIT.git
-            # LuaJIT has a "rolling release" where you should follow git HEAD
-            # branch: v2.1
+            url: 'https://github.com/LuaJIT/LuaJIT.git'
             commit: f73e649a954b599fc184726c376476e7a5c439ca
       - ./shared-modules/linux-audio/fftw3f.json
       - name: AviSynthPlus
         buildsystem: cmake-ninja
         config-opts:
-          - -DENABLE_CUDA=ON
+          - '-DENABLE_CUDA=ON'
         sources:
           - type: git
-            url: https://github.com/AviSynth/AviSynthPlus.git
+            url: 'https://github.com/AviSynth/AviSynthPlus.git'
             tag: v3.7.5
             commit: 6c7c26617a6675eec89e4d4a3565ed709df6511f
             x-checker-data:
@@ -174,7 +172,7 @@ modules:
         buildsystem: autotools
         sources:
           - type: git
-            url: https://github.com/libass/libass.git
+            url: 'https://github.com/libass/libass.git'
             tag: 0.17.4
             commit: bbb3c7f1570a4a021e52683f3fbdf74fe492ae84
             x-checker-data:
@@ -183,31 +181,25 @@ modules:
       - name: uchardet
         buildsystem: cmake-ninja
         config-opts:
-          - -DCMAKE_BUILD_TYPE=Release
-          - -DBUILD_BINARY=OFF
-        sources:
-          - type: git
-            url: https://gitlab.freedesktop.org/uchardet/uchardet.git
-            tag: v0.0.8
-            commit: ae6302a016088ad07177f86d417b20010053632b
-            x-checker-data:
-              type: git
-              version-scheme: semantic
-          - type: patch
-            path: uchardet-fix-cmake.patch
-      - shared-modules/intltool/intltool-0.51.json
-      - name: gtest
-        buildsystem: cmake-ninja
+          - '-DCMAKE_INSTALL_LIBDIR=lib'
+          - '-DCMAKE_BUILD_TYPE=Release'
+          - '-DBUILD_STATIC=0'
+          - '-DCMAKE_POLICY_VERSION_MINIMUM=3.5'
         cleanup:
-          - /**
+          - /bin
+          - /include
+          - /lib/pkgconfig
+          - /share/man
         sources:
-          - type: git
-            url: https://github.com/google/googletest.git
-            tag: v1.17.0
-            commit: 52eb8108c5bdec04579160ae17225d66034bd723
+          - type: archive
+            url: >-
+              https://www.freedesktop.org/software/uchardet/releases/uchardet-0.0.8.tar.xz
+            sha256: e97a60cfc00a1c147a674b097bb1422abd9fa78a2d9ce3f3fdcc2e78a34ac5f0
             x-checker-data:
-              type: git
-              version-scheme: semantic
-
-  # External Extentions
+              type: html
+              url: 'https://www.freedesktop.org/software/uchardet/releases/'
+              version-pattern: uchardet-(\d\.\d+\.?\d*).tar.xz
+              url-template: >-
+                https://www.freedesktop.org/software/uchardet/releases/uchardet-$version.tar.xz
+      - shared-modules/intltool/intltool-0.51.json
   - ./automations/unanimated-scripts.yaml
