@@ -7,9 +7,6 @@ jobs:
   flatpak:
     name: "Flatpak"
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-5.15-25.08
-      options: --privileged
     steps:
     - uses: actions/checkout@v4
       with:
@@ -21,11 +18,21 @@ jobs:
         path: |
           .flatpak-builder
         key: ${{ runner.os }}
-    - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+    - name: Install dependencies
+      run: |
+          sudo apt update
+          sudo apt install flatpak flatpak-builder
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+    - name: Build Flatpak
+      run: |
+          flatpak-builder --force-clean --user --install-deps-from=flathub --repo=repo builddir ./org.aegisub.Aegisub.yml
+    - name: Make bundle
+      run: flatpak build-bundle repo Aegisub.flatpak org.aegisub.Aegisub --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo
+    - name: Upload artifact
+      uses: actions/upload-artifact@v7
       with:
-        bundle: aegisub.flatpak
-        manifest-path: org.aegisub.Aegisub.yml
-        cache-key: flatpak-builder-${{ github.sha }}
+        path: Aegisub.flatpak
+        archive: false
     - name: Save cache
       id: cache-save
       if: always() && steps.cache-restore.outputs.cache-hit != 'true'
